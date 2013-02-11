@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings version="2.0"
+	xmlns="http://java.sun.com/xml/ns/persistence/orm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_2_0.xsd">
+
+	<entity class="com.sample.business.model.SampleEntity" name="SampleEntity"
+		access="PROPERTY">
+		<table name="TABLE_NAME">
+		</table>
+		<attributes>
+			<basic name="stringProperty">
+				<column name="STRING_COLUMN" unique="false" nullable="false"
+					length="30" />
+			</basic>
+			<basic name="enumProperty">
+				<column name="ENUM_COLUMN" nullable="false" />
+				<enumerated>STRING</enumerated>
+			</basic>
+			<basic name="dateProperty">
+				<column name="DATE_COLUMN" nullable="false" />
+				<temporal>TIMESTAMP</temporal>
+			</basic>
+			<one-to-many name="collectionProperty" fetch="EAGER">
+				<join-column name="JOIN_COLUMN" referenced-column-name="id"
+					nullable="false" />
+				<cascade>
+					<cascade-all />
+				</cascade>
+			</one-to-many>
+			<one-to-one name="complexProperty">
+				<join-column name="SOME_COLUMN" />
+				<cascade>
+					<cascade-all></cascade-all>
+				</cascade>
+			</one-to-one>
+		</attributes>
+	</entity>
+</entity-mappings>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd ">
+
+
+    <!-- post-processors for all standard config annotations -->
+    <context:annotation-config />
+
+    <context:property-placeholder
+        location="classpath:spring/persistence-spring.properties" order="1" />
+
+    <jee:jndi-lookup id="dataSource" jndi-name="${dataSource.jndi.name}">
+        <jee:environment>
+            java.naming.factory.initial=${dataSource.jndi.java.naming.factory.initial}
+            java.naming.provider.url=${dataSource.jndi.java.naming.provider.url}
+        </jee:environment>
+    </jee:jndi-lookup>
+    
+    <!-- to be used if jndi data source is not available -->
+    <!--bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+        destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driverClassName}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+        <property name="defaultAutoCommit" value="${jdbc.datasource.properties.defaultAutoCommit}" />
+    </bean-->
+
+    <tx:jta-transaction-manager />
+
+    <bean id="persistenceUnitManager"
+        class="org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager">
+        <property name="persistenceXmlLocations">
+            <list>
+                <value>classpath*:persistence/persistence.xml</value>
+            </list>
+        </property>
+        <property name="defaultDataSource" ref="dataSource" />
+    </bean>
+
+    <bean id="jpaVendorAdapter"
+        class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+        <!--Oracle -->
+        <property name="databasePlatform"
+            value="${entityManagerFactory.jpaVendorAdapter.databasePlatform}" />
+        <!-- Need to discuss on this -->
+        <property name="generateDdl"
+            value="${entityManagerFactory.jpaVendorAdapter.generateDdl}" />
+        <property name="showSql"
+            value="${entityManagerFactory.jpaVendorAdapter.showSql}" />
+    </bean>
+
+    <util:map id="jpaPropertyMap" key-type="java.lang.String"
+        value-type="java.lang.String">
+        <entry key="javax.persistence.transactionType" value="JTA" />
+        <entry key="hibernate.transaction.manager_lookup_class"
+            value="${hibernate.transaction.manager_lookup_class}" />
+        <entry key="hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto}" />
+    </util:map>
+    
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="persistenceUnitManager" ref="persistenceUnitManager"/>
+        <property name="persistenceUnitName" value="sample-application-pu"/>
+        <property name="dataSource" ref="dataSource"/>
+        <property name="jpaVendorAdapter" ref="jpaVendorAdapter"/>
+        <property name="jpaPropertyMap" ref="jpaPropertyMap"/>
+    </bean>
+</beans>
